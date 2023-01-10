@@ -1,7 +1,2 @@
 # SHEEESH THE CODE IS SIMPLE BUT IT HELPS A LITTLE BIT
-
-### Guide for Forking/Modifying
-* Have the by: @LandChit when the program starts
-	* You can do by: @LandChit
-	* Modded by: @You
-Thats it byebye
+You can do whatever its not even hard to begin with just give a little bit of credits maybe please 
