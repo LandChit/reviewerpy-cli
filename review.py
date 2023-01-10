@@ -40,10 +40,10 @@ def start():
             answer = input(f"{question}: ")
             if answer.lower() == load()[question].lower():
                 correctans += 1
-                print("✅")
+                print("[/]")
             else:
                 wrongans += f"{colored(file[question], 'green')}: {question}\n{colored('you answered:', 'grey')} {colored(answer, 'red')}\n"
-                print("❎")
+                print("[x]")
 
             total += 1
 
@@ -56,9 +56,9 @@ def start():
                 if answer in enum:
                     correctans += 1
                     enum.remove(answer)
-                    print("✅")
+                    print("[/]")
                 else:
-                    print("❎")
+                    print("[x]")
 
                 total += 1
 
