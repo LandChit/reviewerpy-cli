@@ -1,5 +1,8 @@
 
-.vscode
-origin of the universe.txt
-notes/origin of the universe.json
-notes/lastsession.temp
+*.pyc
+*.pkl
+*.txt
+*.json
+
+!conv.json
+!text_format.txt
