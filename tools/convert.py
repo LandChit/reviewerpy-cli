@@ -34,7 +34,7 @@ class Translate():
     def convert_todict(self, text:list[str]) -> dict:
         modes = {"norm":0, "group":1, "enum":2}
         data:dict = {}
-        currentmode:int
+        currentmode:int = 0
         
         for line in text:
             # mode change
@@ -59,9 +59,13 @@ class Translate():
                         key = " ".join(wmode)
                         val = {}
                         continue
-
-                    _val, _key = line.split(":", 1)
-                    val[_key] = _val
+                    try:
+                        _val, _key = line.split(":", 1)
+                        val[_key] = _val
+                    except ValueError:
+                        print("ERROR ON: ")
+                        print(line)
+                        print("--continuing--")
 
                 case 2:
                     if line.startswith("@"):
@@ -77,7 +81,7 @@ class Translate():
     
 
 if __name__ == "__main__":
-    file = Translate("text_format.txt")
+    file = Translate("PE.txt")
     dictf = file.convert_todict(file.readbyline())
-    ofile = open("conv.json", "w+")
+    ofile = open("PE-quiz.json", "w+")
     jdump(dictf,ofile, indent=2)
