@@ -15,8 +15,18 @@ class Reviewer():
     def load(self) -> dict:
         return json.load(open("./notes/"+self.path))
 
-    def shuffledkeys(self, dict: dict = None) -> list[str]:
-        if dict == None:
+    def shuffledkeys(self, dict = None) -> list[str]:
+        """
+        ## Shuffled Keys
+        * description: Shuffles the keys in a given dictionary
+        
+        Args:
+            dict (dict, optional): Defaults to None and loads the dict from path if not given any value
+
+        Returns:
+            list[str]: Returns the shuffled keys of the dictionary
+        """        
+        if dict is None:
             dict = self.load()
         keys = [key for key in dict]
         rshuffle(keys)
@@ -37,10 +47,10 @@ def start():
         if etype == str:
             answer = input(f"{key}\n: ").lower()
             if answer == data[key]:
-                print("[/]")
+                print(colored("[/]", "green"))
                 correctans += 1
             else:
-                print("[X]")
+                print(colored("[X]", "red"))
                 wrongans += f"{colored(data[key], 'green')}: {key}\n{colored('you answered:', 'grey')} {colored(answer, 'red')}\n"
 
             totalquestions += 1
@@ -52,10 +62,10 @@ def start():
             for q in shuffled:
                 answer = input(f"{q}\n: ").lower()
                 if answer == data[key][q].lower():
-                    print("[/]")
+                    print(colored("[/]", "green"))
                     correctans += 1
                 else:
-                    print("[X]")
+                    print(colored("[X]", "red"))
                     _wrongans.append(
                         f"{colored(data[key][q], 'green')}: {q}\n{colored('you answered:', 'grey')} {colored(answer, 'red')}")
 
@@ -74,10 +84,10 @@ def start():
                 answer = input("- ").lower()
                 if answer in enum:
                     enum.remove(answer)
-                    print("[/]")
+                    print(colored("[/]", "green"))
                     correctans += 1
                 else:
-                    print("[X]")
+                    print(colored("[X]", "red"))
 
                 totalquestions += 1
 
