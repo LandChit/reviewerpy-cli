@@ -1,9 +1,14 @@
 
-*.pyc
-*.pkl
-*.txt
-*.json
+# IGNORE FOLDER
+.vscode
 
-!conv.json
-!text_format.txt
+# IGNORE FILE
+*.pyc
+*.rvw
+*.txt
 ruff.toml
+
+# ALLOW  
+!test_text.rvw
+!test_text.txt
+

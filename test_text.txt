@@ -1,0 +1,42 @@
+
+
+# comment
+
+@g group name(will be randomized)
+answer1: question1
+answer2: quesiton2
+
+@g group name2(will be randomized)
+answer1: question1
+answer2: quesiton2
+
+
+@og ordered group(questions will be asked in order)
+answer1: question1
+answer2: quesiton2
+
+@og ordered group2(questions will be asked in order)
+answer1: question1
+answer2: quesiton2
+
+
+@e enumeration(list down answers)
+answer1
+answer2
+answer3
+
+@e enumeration2(list down answers)
+answer1
+answer2
+answer3
+
+
+@oe ordered enumeration(lisdt down answers in order)
+answer1
+answer2
+answer3
+
+@oe ordered enumeration2(lisdt down answers in order)
+answer1
+answer2
+answer3
