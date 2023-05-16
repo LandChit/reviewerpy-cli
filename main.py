@@ -2,6 +2,7 @@ import reviewer as rr
 from reviewer import translator as translator
 from termcolor import colored
 import random
+import json
 import pickle
 
 
@@ -25,15 +26,15 @@ def translate(path: str):
     s = s.split("\\")[-1].split(".")
     s.pop(-1)
 
-    f = open(f"{rr.saves_folder}/{'.'.join([str(w) for w in s])}{rr.file_end}", "wb")
+    f = open(f"{rr.saves_folder}/{'.'.join([str(w) for w in s])}{rr.file_end}", "w+")
 
-    pickle.dump(translation.convert(), f)
+    json.dump(translation.convert(), f)
 
 
 def start(path: str):
     title()
     print("path: ", path)
-    save = pickle.load(open(path, "rb"))
+    save = json.load(open(path))
     keys:list[str] = [ge for ge in save]
     random.shuffle(keys)
     total = 0
@@ -153,7 +154,7 @@ if __name__ == "__main__":
         temp = 0
 
         for saves in rr.list_saves(rr.saves_folder):
-            print(f"{temp}: {saves[:-4]}")
+            print(f"{temp}: {saves[:-5]}")
             temp += 1
         if error != "":
             print(colored(f"ERROR {error}", on_color="on_red"), end="")

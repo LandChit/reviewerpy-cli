@@ -1,7 +1,7 @@
 import os
 
 # VARS
-file_end = ".rvw"
+file_end = ".json"
 version = "0.0.3"
 saves_folder = "./saves"
 
