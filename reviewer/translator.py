@@ -7,7 +7,7 @@ class Translate:
         remove_linebreak: list[str] = [
             line.replace("\n", "")
             for line in open(path, "r").readlines()
-            if line != "\n"
+            if line != "\n" if line != ''
         ]
         self.data: list[str] = [
             line for line in remove_linebreak if not line.startswith("#")
