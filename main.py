@@ -28,7 +28,7 @@ def translate(path: str):
 
     f = open(f"{rr.saves_folder}/{'.'.join([str(w) for w in s])}{rr.file_end}", "w+")
 
-    json.dump(translation.convert(), f)
+    json.dump(translation.convert(), f, indent=4)
 
 
 def start(path: str):
@@ -107,7 +107,7 @@ def start(path: str):
                     _answer = input("- ")
                     if _answer.strip().lower() in questions:
                         points += 1
-                        questions.remove(_answer)
+                        questions.remove(_answer.lower().strip())
                         print(colored("[/]", color="green"))
                     else:
                         print(colored("[X]", color="red"))
@@ -188,5 +188,6 @@ if __name__ == "__main__":
                 error = ""
             except IndexError:
                 error = "<MAIN> there is no such save file in that index"
-            except ValueError:
-                error = "<MAIN> invalid input"
+            except ValueError as e:
+                
+                error = f"<MAIN> invalid input {e}"
