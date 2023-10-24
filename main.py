@@ -44,19 +44,22 @@ def start(path: str):
     wrong_enum = []
     
     for key in keys:
-        print(colored(key.replace(translator.zero_width_space, ""), attrs=["underline"]))
+        print(colored(key.replace(translator.zero_width_space, "").replace(r";\n", "\n"), attrs=["underline"]))
         questions = save[key]
         
         if type(questions) is dict:
             wrong = []
             if key.startswith(translator.zero_width_space):
                 for question in questions:
-                    answer:str = input(f"{question}\n:")
+                    _question = question.replace(r";\n", "\n")
+                    answer:str = input(f"{_question}\n:")
+                    
+                    
                     if answer.strip().lower() == questions[question].lower():
                         points += 1
                         print(colored("[/]", color="green"))
                     else:
-                        wrong.append([questions[question], question, answer]) # type: ignore
+                        wrong.append([questions[question], question.replace(r";\n", "\n"), answer]) # type: ignore
                         print(colored("[X]", color="red"))
                     
                     total += 1
@@ -67,18 +70,21 @@ def start(path: str):
                 random.shuffle(shuffled_questions)
                 
                 for question in shuffled_questions:
-                    answer:str = input(f"{question}\n:")
+                    _question = question.replace(r";\n", "\n")
+                    answer:str = input(f"{_question}\n:")
+                    
+                    
                     if answer.strip().lower() == questions[question].lower():
                         points += 1
                         print(colored("[/]", color="green"))
                     else:
-                        wrong.append([questions[question], question, answer]) # type: ignore
+                        wrong.append([questions[question], question.replace(r";\n", "\n"), answer]) # type: ignore
                         print(colored("[X]", color="red"))
                     
                     total += 1
                     
             if wrong != []:
-                wrong_group.append([key.replace(translator.zero_width_space, ""), wrong])            
+                wrong_group.append([key.replace(translator.zero_width_space, "").replace(r";\n", "\n"), wrong])            
         
         
         elif type(questions) is list:
@@ -100,7 +106,7 @@ def start(path: str):
                     total += 1
                 
                 if wrong != []:
-                    wrong_enum.append([key.replace(translator.zero_width_space, ""),wrong])
+                    wrong_enum.append([key.replace(translator.zero_width_space, "").replace(r";\n", "\n"),wrong])
             
             else:
                 for __ in range(len(questions)):
@@ -115,7 +121,7 @@ def start(path: str):
                     total += 1
                 
                 if questions != []:
-                    wrong_enum.append([key, questions])    
+                    wrong_enum.append([key.replace(r";\n", "\n"), questions])    
     
     wg = ""
     for w in wrong_group:

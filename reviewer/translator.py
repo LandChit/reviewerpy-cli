@@ -6,7 +6,7 @@ class Translate:
     def __init__(self, path: str) -> None:
         remove_linebreak: list[str] = [
             line.replace("\n", "")
-            for line in open(path, "r").readlines()
+            for line in open(path, "r", encoding="utf8").readlines()
             if line != "\n" if line != ''
         ]
         self.data: list[str] = [
