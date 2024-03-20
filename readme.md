@@ -1,4 +1,4 @@
-# ReviwerPy-cli
+# ReviwerPy
 It may be simple but it might be able to help you
 
 
