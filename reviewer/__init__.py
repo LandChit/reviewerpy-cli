@@ -7,6 +7,8 @@ def clear_screen():
         os.system("clear")
 
 def list_saves(path:str, file_type:str) -> list:
+    if not os.path.exists(path):
+        os.makedirs(path)
     listdir = os.listdir(path)
     listdir.sort()
     files = []
