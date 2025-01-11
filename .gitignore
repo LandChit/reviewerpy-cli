@@ -4,13 +4,11 @@
 
 # IGNORE FILE
 *.pyc
-*.rvw
 *.json
 *.txt
-.lastattempt
 ruff.toml
+test.py
+run.bat
 
-# ALLOW  
-!test_text.json
-!test_text.txt
+
 

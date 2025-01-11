@@ -1,0 +1,11 @@
+
+# Directories
+text_dir: "./text"
+save_dir: "./saves"
+
+# File Types
+pickled_save: false # Will use json if set to false
+
+# Translator will only display files with this file type
+# dont include the (.)
+text_type: "txt" 

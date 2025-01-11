@@ -1,199 +1,223 @@
-import reviewer as rr
-from reviewer import translator as translator
-from termcolor import colored
-import random
+#pylint:disable=W0106
+import reviewer as rp
+from reviewer.reviewer import Reviewer
+from reviewer import translator
+
 import json
 import pickle
+import time
+from yaml import safe_load
+
+rpy_conf = safe_load(open("rpy.yml"))
+config = safe_load(open("config.yml"))
 
 
+_ONGREEN = '\x1B[42m'
+_ONGREY = '\x1B[47m'
+_YELLOW = '\x1B[33m'
+_GREEN = '\x1B[32m'
+_RED = '\x1B[31m'
+_GREY = '\x1B[30m'
+_END = '\x1B[0m'
 
+_UNDERLINE = '\033[4m'
+_END2 = '\033[0m'
 
 def title():
-    rr.clear_screen()
+    rp.clear_screen()
     print("█▀▀▄ █▀▀ ▐▌ ▐▌ ▀ █▀▀ █   █ █▀▀ █▀▀▄", end="")
-    print(colored("   █▀▄ ▀▄▄▀", "green"))
+    print(f"{_GREEN}   █▀▄ ▀▄▄▀{_END}")
     print("█▐█▀ █▀▀  ▀▄▀  █ █▀▀ █ █ █ █▀▀ █▐█▀", end="")
-    print(colored("   █▀    █", "green"))
+    print(f"{_GREEN}   █▀    █{_END}")
     print("▀ ▀▀ ▀▀▀   ▀   ▀ ▀▀▀  ▀ ▀  ▀▀▀ ▀ ▀▀", end="")
-    print(colored("   ▀    ▀ ", "green"))
-    print(colored("-----------By:@LandChit------------", on_color="on_green") +
-          f"   V{rr.version}")
+    print(f"{_GREEN}   ▀    ▀ {_END}")
+    print(f"{_ONGREEN}------------By:@LandChit------------{_END}" +
+          f"   V{rpy_conf['version']}")
 
+def save_file(save:dict, name:str):
+    if config["pickled_save"]:
+        file_type = ".rps"
+        mode = "ab"
+    else:
+        file_type = ".json"
+        mode = "w+"
+    file = open(f"{config['save_dir']}/{name+file_type}", mode)
+    json.dump(save, file, indent=4) if mode == "w+" else pickle.dump(save, file)
 
-def translate(path: str):
-    translation = translator.Translate(path)
-    s = path.split("/")[-1]
-    s = s.split("\\")[-1].split(".")
-    s.pop(-1)
-
-    f = open(f"{rr.saves_folder}/{'.'.join([str(w) for w in s])}{rr.file_end}", "w+")
-
-    json.dump(translation.convert(), f, indent=4)
-
-
-def start(path: str):
-    title()
-    print("path: ", path)
-    save = json.load(open(path))
-    keys:list[str] = [ge for ge in save]
-    random.shuffle(keys)
-    total = 0
-    points = 0
+def translate_errors_format(warnings, errors):
+    final = ""
     
-    wrong_group = []
-    wrong_enum = []
-    
-    for key in keys:
-        print(colored(key.replace(translator.zero_width_space, "").replace(r";\n", "\n"), attrs=["underline"]))
-        questions = save[key]
+    if warnings != []: final += f'\n{_YELLOW}[WARNINGS]{_END}'
+    for i in warnings:
+        final += f'\n{_YELLOW}WARNING: {_END}'+ i.as_string()
         
-        if type(questions) is dict:
-            wrong = []
-            if key.startswith(translator.zero_width_space):
-                for question in questions:
-                    _question = question.replace(r";\n", "\n")
-                    answer:str = input(f"{_question}\n:")
-                    
-                    
-                    if answer.strip().lower() == questions[question].lower():
-                        points += 1
-                        print(colored("[/]", color="green"))
-                    else:
-                        wrong.append([questions[question], question.replace(r";\n", "\n"), answer]) # type: ignore
-                        print(colored("[X]", color="red"))
-                    
-                    total += 1
-                
-                    
-            else:
-                shuffled_questions = [q for q in questions]
-                random.shuffle(shuffled_questions)
-                
-                for question in shuffled_questions:
-                    _question = question.replace(r";\n", "\n")
-                    answer:str = input(f"{_question}\n:")
-                    
-                    
-                    if answer.strip().lower() == questions[question].lower():
-                        points += 1
-                        print(colored("[/]", color="green"))
-                    else:
-                        wrong.append([questions[question], question.replace(r";\n", "\n"), answer]) # type: ignore
-                        print(colored("[X]", color="red"))
-                    
-                    total += 1
-                    
-            if wrong != []:
-                wrong_group.append([key.replace(translator.zero_width_space, "").replace(r";\n", "\n"), wrong])            
+    if errors != []: final += f'\n{_RED}[ERRORS]{_END}'
+    for i in errors:
+
+        final += f'\n{_RED}ERROR: {_END}'+ i.as_string()
+        
+    if warnings == [] and errors == []:
+        final += f"\n{_GREEN}TRANSLATED WITHOUT ANY ERRORS{_END}"
+        
+    return final
+
+def translate():
+    print(f"\n{_UNDERLINE}ID   NAME{'‎ '*10}{_END2}")
+    tsaves:list[str] = rp.list_saves(config["text_dir"], config["text_type"])
+    count = 0
+    for tsave in tsaves:
+        print(f"{count:03d} |", tsave.split(".", -1)[0])
+        count += 1
+    text_id = input("\nID of the text: ")
+    try:
+        
+        text_id = int(text_id)
+        
+        title()
+        f = open(config["text_dir"]+"/"+tsaves[text_id], errors='ignore').read()
+        translated, warn, error = translator.Translate(f).transformed()
+        
+        print(translate_errors_format(warn, error))
+        
+        tsave_name = input("Save name (Uses text name if blank): ")
+        if tsave_name == "":
+            tsave_name = tsaves[text_id].split(".", -1)[0]
+        
+        save_file(translated, tsave_name)
+    except ValueError :
+        title()
+        print(f"\n{_RED}FAILED: NOT AN INTEGER{_END}")
+    except IndexError:
+        title()
+        print(f"\n{_RED}FAILED: INDEX OUT OF RANGE{_END}")
+    
+    input("\nPress Enter to Continue")
+
+def last_runs():
+    count = 0
+    cache = open('./reviewer/cache.json', "r")
+    content = json.load(cache)
+    delete = False
+    
+    runs = [run for run in content["last_runs"].keys()]
+    print(f"\n{_UNDERLINE}ID   NAME{'‎ '*10}{_END2}")
+    print("d+[Id of save] To delete last runs; ex. d01")
+    
+    for run in runs:
+        print(f"{count:03d} |", run)
+        count += 1
+    
+    run_id = input("\nID of save: ")
+    
+    if run_id.startswith('d') or run_id.startswith('D'):
+        delete = True
+        
+    try:
+        run_id = run_id.removeprefix('d')
+        run_id = run_id.removeprefix('D')
+        run_id = run_id.strip()
+
+        run_id = int(run_id)
+        
+        title()
+        if not delete:
+            print(content["last_runs"][runs[run_id]])
+            input()
+            return
         
         
-        elif type(questions) is list:
-            questions = [q.strip().lower() for q in questions]
-            
-            if key.startswith(translator.zero_width_space):
-                count = 1
-                wrong:list[str] = []
-                for __ in range(len(questions)):
-                    _answer = input(f"{count} - ")
-                    if _answer.strip().lower() == questions[0]:
-                        points += 1
-                        print(colored("[/]", color="green"))
-                    else:
-                        wrong.append(questions[0])
-                        print(colored("[X]", color="red"))    
-                    questions.pop(0)
-                    count += 1
-                    total += 1
-                
-                if wrong != []:
-                    wrong_enum.append([key.replace(translator.zero_width_space, "").replace(r";\n", "\n"),wrong])
-            
-            else:
-                for __ in range(len(questions)):
-                    _answer = input("- ")
-                    if _answer.strip().lower() in questions:
-                        points += 1
-                        questions.remove(_answer.lower().strip())
-                        print(colored("[/]", color="green"))
-                    else:
-                        print(colored("[X]", color="red"))
-                    
-                    total += 1
-                
-                if questions != []:
-                    wrong_enum.append([key.replace(r";\n", "\n"), questions])    
+        del content["last_runs"][runs[run_id]]
+        print(content)
+        # TODO: WONT DUMP 
+        # json.dump(open('./reviewer/cache.json', "w"), cache, indent=4)
+        
+        
+    except ValueError:
+        title()
+        print(f"\n{_RED}FAILED: NOT AN INTEGER{_END}")
+    except IndexError:
+        title()
+        print(f"\n{_RED}FAILED: INDEX OUT OF RANGE{_END}")
     
-    wg = ""
-    for w in wrong_group:
-        wg += colored("\n" + w[0] + "\n", attrs=["underline"])
-        for ww in w[1]:
-            wg += f"{colored(ww[0], 'green')}: {ww[1]}\n: {colored(ww[2], 'red')}\n"
-    
-    we = ""
-    for w in wrong_enum:
-        we += colored("\n" + w[0] + "\n", attrs=["underline"])
-        for ww in w[1]:
-            we += f"- {colored(ww, 'red')}\n"
-    
-    wronganswers = f"""
-WRONG ANSWERS {points}/{total}
------GROUPED-----
-    {wg}
-    
-----ENUMERATED----
-    {we}
-    """
-    print(wronganswers)
-    pickle.dump(f"path: {path}{wronganswers}", open("./.lastattempt", "wb"))
     input()
 
+def wrong_answer_format(wrong_e, wrong_oe, wrong_g):
+    state = ""
+    wrong_answers = ""
+    
+    if (wrong_e + wrong_oe + wrong_g) != []:
+        state = f"\n{_RED}-------WRONG ANSWERS-------{_END}"
+    else: state = f'\n{_GREEN}CONGRATS YOU GOT A PERFECT SCORE{_END}'
 
-if __name__ == "__main__":
-    error = ""
+    for w in wrong_g:
+        wrong_answers += f'{_ONGREY}GROUP{_END} {w[0]}\n'
+        for i in w[1]:
+            wrong_answers += f"{_GREEN}{i[1]}{_END}: {i[0]}\n"
+            wrong_answers += f" :{_RED}{i[2]}{_END}\n"
+    
+    for w in wrong_e:
+        wrong_answers += f'{_ONGREY}ENUM{_END} {w[0]}\n'
+        for i in w[1]:
+            wrong_answers += f"- {_RED}{i}{_END}\n"
+    
+    for w in wrong_oe:
+        wrong_answers += f'{_ONGREY}OENUM{_END} {w[0]}\n'
+        for i in w[1]:
+            wrong_answers += f'{i[0]:03d}| {_RED}{i[1]}{_END}\n'
+    
+    return state, wrong_answers
+
+def main_menu():
+    last = ""
+    
     while True:
         title()
-
-        print(colored("\nT: Translate your reviewer | L: Show your last attempt",
-                      "magenta", attrs=["underline"]))
-
-        print("\n::YOUR SAVES::")
-        temp = 0
-
-        for saves in rr.list_saves(rr.saves_folder):
-            print(f"{temp}: {saves[:-5]}")
-            temp += 1
-        if error != "":
-            print(colored(f"ERROR {error}", on_color="on_red"), end="")
-        selection = input("\ninput: ")
-
-        if selection.lower() == "t":
+        print("T: Translate a text file | L: Last Session")
+        
+        print(f"\n{_UNDERLINE}ID   NAME{'‎ '*10}{_END2}")
+        file_type = "rps" if config["pickled_save"] else "json"
+        mode = "rb" if config["pickled_save"] else "r"
+        saves:list[str] = rp.list_saves(config["save_dir"], file_type)
+        count = 0
+        for save in saves:
+            print(f"{count:03d} |", save.split(".", -1)[0])
+            count += 1
+        inp = input("\ninput: ")
+        
+        try:
+            pointer = int(inp)
             title()
-            path = input("\ninput file path:")
-            try:
-                translate(path)
-                input("\nyour save file has been translated press enter to continue")
-                error = ""
-            except FileNotFoundError:
-                error = "<TRANSLATOR> that path does not exist"
+            content = open(f"{config['save_dir']}/{saves[pointer]}", mode)
+            content = json.load(content) if mode == "r" else pickle.load(content)
+            
+            review = Reviewer(content)
+            start_time = time.time()
+            wrong_e, wrong_oe, wrong_g = review.start()
+            end_time = time.time()
+            answer_time = end_time - start_time
+            
+            state, formated = wrong_answer_format(wrong_e, wrong_oe, wrong_g)
+            stats = f"""\n{_UNDERLINE}TIME(m:s): {rp.time_convert(answer_time)}\
+                | SCORE: {review.correct_items}/{review.item_count}{_END2}\
+            \n{state}\
+            \n{formated}\
+            """
+            print(stats)
+            input("press enter to continue")
 
-        elif selection.lower() == "l":
+        except ValueError:
             title()
-            try:
-                print(":::::LAST ATTEMPT::::")
-                print(pickle.load(open("./.lastattempt", "rb")))
-                input()
-                error = ""
-            except FileNotFoundError:
-                error = "<LAST ATTEMPT> you dont have any"
-            
-            
-        else:
-            try:
-                start(
-                    f"{rr.saves_folder}/{rr.list_saves(rr.saves_folder)[int(selection)]}")
-                error = ""
-            except IndexError:
-                error = "<MAIN> there is no such save file in that index"
-            except ValueError as e:
-                
-                error = f"<MAIN> invalid input {e}"
+            if inp.strip().upper() == "T":
+                translate()
+            elif inp.strip().upper() == "L":
+                last_runs()
+        except IndexError:
+            ...
+
+        
+ 
+if __name__ == "__main__":
+    # app = Reviewer()
+    # app.start()
+    
+    main_menu()
