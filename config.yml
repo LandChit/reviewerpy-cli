@@ -1,4 +1,7 @@
 
+# Translates all text files on the text directory without needing to select 1 by 1. (Slower But more convenient)
+translate_all: true
+
 # Directories
 text_dir: "./text"
 save_dir: "./saves"

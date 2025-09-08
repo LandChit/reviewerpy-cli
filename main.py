@@ -93,6 +93,29 @@ def translate():
     
     input("\nPress Enter to Continue")
 
+def translate_all():
+    #TODO: Add Logging 
+
+    tsaves:list[str] = rp.list_saves(config["text_dir"], config["text_type"])
+    
+    all_errors: list[str] = []
+
+    index = 0
+    for tsave in tsaves:
+        title()
+        f = open(config["text_dir"]+"/"+tsaves[index], errors='ignore').read()
+        translated, warn, error = translator.Translate(f).transformed()
+        
+        all_errors.append(translate_errors_format(warn, error))
+        
+        
+        tsave_name = tsaves[index].split(".", -1)[0]
+        
+        save_file(translated, tsave_name)
+        index += 1
+
+    
+
 def last_runs():
     count = 0
     cache = open('./reviewer/cache.json', "r")
@@ -208,7 +231,13 @@ def main_menu():
         except ValueError:
             title()
             if inp.strip().upper() == "T":
-                translate()
+                print(config["translate_all"])
+                input()
+                if not config["translate_all"]:
+                    translate()
+                else:
+                    translate_all()
+                
             elif inp.strip().upper() == "L":
                 last_runs()
         except IndexError:
